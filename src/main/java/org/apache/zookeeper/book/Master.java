@@ -176,9 +176,13 @@ public class Master implements Watcher, Closeable {
      * need to be executed a second time.
      */
     public void bootstrap(){
+        // works目录
         createParent("/workers", new byte[0]);
+        // master分配任务 给works的目录
         createParent("/assign", new byte[0]);
+        // client提交的任务目录
         createParent("/tasks", new byte[0]);
+        // 任务执行状态任务
         createParent("/status", new byte[0]);
     }
     
@@ -470,6 +474,7 @@ public class Master implements Watcher, Closeable {
             toProcess = null;
         } else {
             LOG.info( "Removing and setting" );
+            // toProcess代表新增加或者新减少的works
             toProcess = workersCache.removedAndSet( children );
         }
         
@@ -481,6 +486,7 @@ public class Master implements Watcher, Closeable {
     }
     
     void getAbsentWorkerTasks(String worker){
+        // /assign/"work"/ 下有很多master分配的任务
         zk.getChildren("/assign/" + worker, false, workerAssignmentCallback, null);
     }
     
@@ -499,7 +505,8 @@ public class Master implements Watcher, Closeable {
                 /*
                  * Reassign the tasks of the absent worker.  
                  */
-                
+
+                //如果是新增加的work 这里的children可能就是一个empty() list
                 for(String task: children) {
                     getDataReassign(path + "/" + task, task);                    
                 }
@@ -692,6 +699,7 @@ public class Master implements Watcher, Closeable {
         }
     }
 
+
     void getTaskData(String task) {
         zk.getData("/tasks/" + task, 
                 false, 
@@ -716,6 +724,7 @@ public class Master implements Watcher, Closeable {
                 /*
                  * Assign task to randomly chosen worker.
                  */
+                // 给/works/workId分配任务
                 String assignmentPath = "/assign/" + 
                         designatedWorker + 
                         "/" + 

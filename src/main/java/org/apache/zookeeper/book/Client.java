@@ -138,6 +138,8 @@ public class Client implements Watcher, Closeable {
     
     void watchStatus(String path, Object ctx){
         ctxMap.put(path, ctx);
+        //exists 可以将监控器设置在不存在的结点
+        // 当节点create change都会触发 statusWatcher这个监视器
         zk.exists(path, 
                 statusWatcher, 
                 existsCallback, 
